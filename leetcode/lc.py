@@ -6,10 +6,37 @@ import dataclasses
 @dataclasses.dataclass
 class InputData:
     str_arg: Optional[str] = None
+    num_arg: Optional[int] = None
     str_list: Optional[str] = None
     num_list: Optional[str] = None
-    num_arg: Optional[int] = None
     file_content: Optional[str] = None  # Changed from 'file'
+
+
+def read_input_data(
+    str_arg: Optional[str] = None,
+    num_arg: Optional[int] = None,
+    str_list: Optional[str] = None,
+    num_list: Optional[str] = None,
+    file: Optional[str] = "./input.txt",
+) -> InputData:
+    """Reads and constructs InputData from arguments and file."""
+    file_content = None
+    if file is not None:
+        try:
+            with open(file, "r") as f:
+                content = f.read()
+                if content.strip() != "":
+                    file_content = content
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Error: File not found at {file}")
+
+    return InputData(
+        str_arg=str_arg,
+        str_list=str_list,
+        num_list=num_list,
+        num_arg=num_arg,
+        file_content=file_content,
+    )
 
 
 def cli(
@@ -21,23 +48,12 @@ def cli(
 ) -> None:
     """Processes string, numbers, and file inputs."""
 
-    file_content = None
-    if file is not None:
-        try:
-            with open(file, "r") as f:
-                content = f.read()
-                if content.strip() != "":
-                    file_content = content
-        except FileNotFoundError:
-            raise FileNotFoundError(f"Error: File not found at {file}")
-
-    # Create InputData instance
-    input_data = InputData(
+    input_data = read_input_data(
         str_arg=str_arg,
+        num_arg=num_arg,
         str_list=str_list,
         num_list=num_list,
-        num_arg=num_arg,
-        file_content=file_content,
+        file=file,
     )
 
     if input_data.str_arg is not None:
@@ -59,6 +75,15 @@ def cli(
     if input_data.file_content is not None:
         print("File contents:")
         print(input_data.file_content)
+
+
+def process_input_data(input_data: InputData) -> None:
+    """Processes the input data and prints the results.
+
+    Args:
+        input_data: An instance of InputData containing the input data.
+    """
+    return
 
 
 def _validate_and_print_string_list(str_list: str) -> None:
