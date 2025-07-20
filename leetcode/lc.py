@@ -1,53 +1,64 @@
 from typing import List, Optional
 import fire
+import dataclasses
+
+
+@dataclasses.dataclass
+class InputData:
+    str_arg: Optional[str] = None
+    str_list: Optional[str] = None
+    num_list: Optional[str] = None
+    num_arg: Optional[int] = None
+    file_content: Optional[str] = None  # Changed from 'file'
 
 
 def cli(
     str_arg: Optional[str] = None,
+    num_arg: Optional[int] = None,
     str_list: Optional[str] = None,
     num_list: Optional[str] = None,
-    num_arg: Optional[int] = None,
     file: Optional[str] = "./input.txt",
 ) -> None:
-    """Processes string, numbers, and file inputs.
+    """Processes string, numbers, and file inputs."""
 
-    This function acts as a command-line interface to process various
-    inputs, including a single string, a comma-separated string of
-    strings, a comma-separated string of numbers, a single number,
-    and the path to a file.
-
-    Args:
-        str_arg: A single string input.
-        str_list: A comma-separated string of strings.
-        num_list: A comma-separated string of numbers.
-        num_arg: A single integer input.
-        file: Path to a file to read from. Defaults to "./input.txt".
-
-    Raises:
-        ValueError: If 'str_arg' is not a string or 'num_arg' is not an integer.
-        FileNotFoundError: If the provided file path is not found.
-    """
-
-    if str_arg is not None:
-        if not isinstance(str_arg, str):
-            raise ValueError("The 'str_arg' argument must be a string.")
-        print(f"Single string: {str_arg}")
-
-    if str_list is not None:
-        _validate_and_print_string_list(str_list)
-
-    if num_list is not None:
-        _validate_and_print_number_list(num_list)
-
-    if num_arg is not None:
-        if not isinstance(num_arg, int):
-            raise ValueError("The 'num_arg' argument must be an integer.")
-        print(f"Single number: {num_arg}")
-
+    file_content = None
     if file is not None:
-        _print_file_content(file)
-    else:
-        print("No file path provided.")
+        try:
+            with open(file, "r") as f:
+                content = f.read()
+                if content.strip() != "":
+                    file_content = content
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Error: File not found at {file}")
+
+    # Create InputData instance
+    input_data = InputData(
+        str_arg=str_arg,
+        str_list=str_list,
+        num_list=num_list,
+        num_arg=num_arg,
+        file_content=file_content,
+    )
+
+    if input_data.str_arg is not None:
+        if not isinstance(input_data.str_arg, str):
+            raise ValueError("The 'str_arg' argument must be a string.")
+        print(f"Single string: {input_data.str_arg}")
+
+    if input_data.str_list is not None:
+        _validate_and_print_string_list(input_data.str_list)
+
+    if input_data.num_list is not None:
+        _validate_and_print_number_list(input_data.num_list)
+
+    if input_data.num_arg is not None:
+        if not isinstance(input_data.num_arg, int):
+            raise ValueError("The 'num_arg' argument must be an integer.")
+        print(f"Single number: {input_data.num_arg}")
+
+    if input_data.file_content is not None:
+        print("File contents:")
+        print(input_data.file_content)
 
 
 def _validate_and_print_string_list(str_list: str) -> None:
@@ -74,23 +85,6 @@ def _validate_and_print_number_list(num_list: str) -> None:
         print(f"List of numbers: {numbers}")
     except ValueError as e:
         raise ValueError(f"Invalid number provided in the list: {e}") from e
-
-
-def _print_file_content(file: str) -> None:
-    """Prints the content of a given file.
-
-    Args:
-        file: The path to the file.
-
-    Raises:
-        FileNotFoundError: If the provided file is not found.
-    """
-    try:
-        with open(file, "r") as f:
-            print("File contents:")
-            print(f.read())
-    except FileNotFoundError:
-        raise FileNotFoundError(f"Error: File not found at {file}")
 
 
 if __name__ == "__main__":
