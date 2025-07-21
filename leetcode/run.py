@@ -4,6 +4,8 @@ from typing import Any
 import input_parser
 from input_data import InputData, display_input_data
 
+import problems.lc146  # Import the module
+
 
 def cli(
     txt: str | None = None,
@@ -25,6 +27,8 @@ def cli(
     )
 
     display_input_data(input_data)
+
+    problems.lc146.test()
 
 
 if __name__ == "__main__":
