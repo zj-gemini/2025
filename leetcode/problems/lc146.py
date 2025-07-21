@@ -1,3 +1,7 @@
+RESERVED_HEAD_KEY = -1234
+RESERVED_TAIL_KEY = -4321
+
+
 class Node:
     def __init__(self, key: int, value: int):
         self.key = key
@@ -10,58 +14,60 @@ class LRUCache:
 
     def __init__(self, capacity: int):
         self.capacity = capacity
-        self.cache = {}  # key -> Node
-        # Dummy head and tail nodes
-        self.head = Node(0, 0)
-        self.tail = Node(0, 0)
+        self.cache = {}
+        self.head = Node(RESERVED_HEAD_KEY, 0)
+        self.tail = Node(RESERVED_TAIL_KEY, 0)
         self.head.next = self.tail
         self.tail.prev = self.head
 
-    def _remove(self, node):
-        prev, nxt = node.prev, node.next
-        prev.next = nxt
-        nxt.prev = prev
+    def _remove(self, node: Node) -> None:
+        """Remove a node from the linked list."""
+        pre, next = node.prev, node.next
+        pre.next = next
+        next.prev = pre
 
-    def _add(self, node):
-        # Always add right after head
-        node.next = self.head.next
+    def _add(self, node: Node) -> None:
+        """Add a node right after the head."""
         node.prev = self.head
+        node.next = self.head.next
         self.head.next.prev = node
         self.head.next = node
 
     def get(self, key: int) -> int:
-        if key in self.cache:
-            node = self.cache[key]
-            self._remove(node)
-            self._add(node)
-            return node.value
-        return -1
+        if key not in self.cache:
+            return -1
+        node = self.cache[key]
+        self._remove(node)
+        self._add(node)
+        return node.value
 
     def put(self, key: int, value: int) -> None:
         if key in self.cache:
-            self._remove(self.cache[key])
-        node = Node(key, value)
-        self._add(node)
-        self.cache[key] = node
-        if len(self.cache) > self.capacity:
-            # Remove from tail
-            lru = self.tail.prev
-            self._remove(lru)
-            del self.cache[lru.key]
+            # Update the value and move to the head
+            node = self.cache[key]
+            node.value = value
+            self.get(key)
+        else:
+            node = Node(key, value)
+            self._add(node)
+            self.cache[key] = node
+            if len(self.cache) > self.capacity:
+                last_node = self.tail.prev
+                self._remove(last_node)
+                del self.cache[last_node.key]
 
 
 def test():
-    lRUCache = LRUCache(2)
-    lRUCache.put(1, 1)
-    lRUCache.put(2, 2)
-    print(lRUCache.get(1))  # 1
-    lRUCache.put(3, 3)
-    print(lRUCache.get(2))  # -1
-    lRUCache.put(4, 4)
-    print(lRUCache.get(1))  # -1
-    print(lRUCache.get(3))  # 3
-    print(lRUCache.get(4))  # 4
+    cache = LRUCache(2)
+    cache.put(1, 1)
+    cache.put(2, 2)
+    print(cache.get(1))  # 1
+    cache.put(3, 3)
+    print(cache.get(2))  # -1
+    cache.put(4, 4)
+    print(cache.get(1))  # -1
+    print(cache.get(3))  # 3
+    print(cache.get(4))  # 4
 
 
-# Uncomment to run test
-# test()
+test()
