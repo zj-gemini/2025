@@ -4,10 +4,11 @@ from typing import List
 
 @dataclasses.dataclass
 class InputData:
-    str_arg: str | None = None
-    num_arg: int | None = None
-    strs: List[str] | None = None  # changed from str_list
-    ints: List[int] | None = None  # changed from num_list
+    txt: str | None = None
+    num: float | None = None
+    strs: List[str] | None = None
+    ints: List[int] | None = None
+    floats: List[float] | None = None
     file_content: str | None = None
 
 
@@ -17,20 +18,24 @@ def display_input_data(input_data: InputData) -> None:
     Args:
         input_data: An instance of InputData containing the input data.
     """
-    if input_data.str_arg is not None:
-        print(f"Single string: {input_data.str_arg}")
+    if input_data.txt is not None:
+        print(f"Single string: {input_data.txt}")
 
     if input_data.strs is not None:
         print(f"List of strings: {input_data.strs}")
 
     if input_data.ints is not None:
-        print(f"List of numbers: {input_data.ints}")
+        print(f"List of integers: {input_data.ints}")
 
-    if input_data.num_arg is not None:
-        print(f"Single number: {input_data.num_arg}")
+    if input_data.floats is not None:
+        print(f"List of floats: {input_data.floats}")
+
+    if input_data.num is not None:
+        print(f"Single number: {input_data.num}")
 
     if input_data.file_content is not None:
-        print("File contents:")
+        print("File content starts" + "-" * 20)
         print(input_data.file_content)
+        print("File content ends" + "-" * 20)
 
     return

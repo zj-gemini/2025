@@ -6,19 +6,21 @@ from input_data import InputData, display_input_data
 
 
 def cli(
-    str_arg: str | None = None,
-    num_arg: int | None = None,
-    str_list: str | None = None,
-    num_list: str | None = None,
+    txt: str | None = None,
+    num: float | None = None,
+    strs: str | None = None,
+    ints: str | None = None,
+    floats: str | None = None,
     file: str | None = "./input.txt",
 ) -> None:
     """Processes string, numbers, and file inputs."""
 
     input_data = input_parser.read_input_data(
-        str_arg=str_arg,
-        num_arg=num_arg,
-        str_list=str_list,
-        num_list=num_list,
+        txt=txt,
+        num=num,
+        strs=strs,
+        ints=ints,
+        floats=floats,
         file=file,
     )
 

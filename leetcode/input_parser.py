@@ -41,14 +41,15 @@ class FloatListParser(ListParser[float]):
 class StrListParser(ListParser[str]):
     @override
     def _convert_item(self, item) -> str:
-        return item.strip()  # No conversion needed, just strip whitespace
+        return str(item).strip()  # No conversion needed, just strip whitespace
 
 
 def read_input_data(
-    str_arg,
-    num_arg,
-    str_list,
-    num_list,
+    txt,
+    num,
+    strs,
+    ints,
+    floats,
     file,
 ) -> InputData:
     """Reads and constructs InputData from arguments and file."""
@@ -66,31 +67,27 @@ def read_input_data(
         except FileNotFoundError:
             raise FileNotFoundError(f"Error: File not found at {file}")
 
-    # Parse str_arg
-    if str_arg is not None:
-        if not isinstance(str_arg, str):
+    # Parse txt
+    if txt is not None:
+        if not isinstance(txt, str):
             raise ValueError(
-                f"Invalid type for 'str_arg', expected 'str', got '{type(str_arg)}'"
+                f"Invalid type for 'txt', expected 'str', got '{type(txt)}'"
             )
 
-    # Parse num_arg
-    if num_arg is not None:
-        if isinstance(num_arg, str):
-            try:
-                num_arg = int(num_arg)
-            except ValueError as e:
-                raise ValueError(
-                    f"Invalid value for 'num_arg', expected 'int', got '{num_arg}'. Error: {e}"
-                ) from e
-        elif not isinstance(num_arg, int):
+    # Parse num
+    if num is not None:
+        if isinstance(num, (float, int, str)):
+            num = float(num)
+        else:
             raise ValueError(
-                f"Invalid type for 'num_arg', expected 'str' or 'int', got '{type(num_arg)}'"
+                f"Invalid type for 'num', expected 'str' or, 'float', 'int', got '{type(num)}'"
             )
 
     return InputData(
-        str_arg=str_arg,
-        num_arg=num_arg,
-        strs=StrListParser().parse(str_list),
-        ints=IntListParser().parse(num_list),
+        txt=txt,
+        num=num,
+        strs=StrListParser().parse(strs),
+        ints=IntListParser().parse(ints),
+        floats=FloatListParser().parse(floats),
         file_content=file_content,
     )
