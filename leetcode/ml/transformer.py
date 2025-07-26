@@ -54,6 +54,7 @@ attention_weights_2 = F.softmax(omega_2 / d_k**0.5, dim=0)
 print("attention_weights_2:", attention_weights_2.shape)
 print(attention_weights_2)
 
+# Finally, we compute the context vector as the weighted sum of the value vectors, where the weights are given by the attention weights.
 context_vector_2 = attention_weights_2.matmul(values)
 
 print("context_vector_2:", context_vector_2.shape)
