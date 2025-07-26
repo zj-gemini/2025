@@ -1,29 +1,52 @@
+from sortedcontainers import SortedList
+from collections import defaultdict
+
+
 class Allocator:
 
     def __init__(self, n: int):
-        # 0 means free
-        self.mem = [0] * n
+        self.freeBlocks = SortedList([(0, n - 1)])
+        self.busyBlocks = defaultdict(list)
 
     def allocate(self, size: int, mID: int) -> int:
-        if size <= 0:
-            return -1
-        n = len(self.mem)
-        i = 0
-        while i <= n - size:
-            if all(self.mem[j] == 0 for j in range(i, i + size)):
-                for j in range(i, i + size):
-                    self.mem[j] = mID
-                return i
-            i += 1
-        return -1
+        for start, end in self.freeBlocks:
+            if (blockEnd := start + size - 1) > end:
+                continue  # block size is not enough
+            self.busyBlocks[mID].append((start, blockEnd))
+            self.freeBlocks.remove((start, end))
+            if (
+                blockEnd < end
+            ):  # have free size in the block, return new free size to freeBlocks list
+                self.freeBlocks.add((blockEnd + 1, end))
+            return start
+
+        return -1  # no avaialbe blocks
 
     def freeMemory(self, mID: int) -> int:
-        count = 0
-        for i in range(len(self.mem)):
-            if self.mem[i] == mID:
-                self.mem[i] = 0
-                count += 1
-        return count
+        freeBlocksCnt = 0
+        for start, end in self.busyBlocks[mID]:
+            freeBlocksCnt += end - start + 1
+            idx = self.freeBlocks.bisect_left((start, end))
+
+            # first process block from the right, because after removing from the left
+            # all blockes moved to the -1 position in self.freeBlocks
+            if idx < len(self.freeBlocks):  # check next free block if it does exist
+                nextStart, nextEnd = self.freeBlocks[idx]
+                if end + 1 == nextStart:
+                    end = nextEnd
+                    self.freeBlocks.remove((nextStart, nextEnd))
+
+            # check left (previous) free block if it does exist
+            if idx > 0:
+                prevStart, prevEnd = self.freeBlocks[idx - 1]
+                if prevEnd + 1 == start:
+                    start = prevStart
+                    self.freeBlocks.remove((prevStart, prevEnd))
+
+            self.freeBlocks.add((start, end))
+        del self.busyBlocks[mID]  # remove all released blocks
+
+        return freeBlocksCnt
 
 
 def test():
@@ -41,4 +64,4 @@ def test():
 
 
 # Uncomment to run tests
-#
+test()
