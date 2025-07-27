@@ -1,4 +1,5 @@
 from collections import Counter
+from collections import defaultdict
 
 
 def find_most_common_char_ngrams(document: str, nlist: list[int]) -> dict[int, str]:
@@ -15,30 +16,23 @@ def find_most_common_char_ngrams(document: str, nlist: list[int]) -> dict[int, s
     if not document or not nlist:
         return {}
 
+    max_n = max(nlist)
+    ngram_dict = {n: Counter() for n in nlist}
+    for i in range(len(document)):
+        for n in range(1, max_n + 1):
+            if i + n > len(document):
+                break
+            # 如果 n 在 nlist 中，则统计该 n-gram 的频率
+            if n in ngram_dict:
+                ngram = document[i : i + n]
+                ngram_dict[n][ngram] += 1
+
     results = {}
-
-    # 遍历 nlist 中的每一个 n
-    for n in nlist:
-        # 边界条件：如果字符串长度小于 n，无法形成 n-gram
-        if n <= 0 or len(document) < n:
+    for n, counter in ngram_dict.items():
+        if counter:
+            results[n] = counter.most_common(1)[0][0]
+        else:
             results[n] = None
-            continue
-
-        # 使用列表推导式和切片生成所有 n-grams
-        # 注意：这里直接操作字符串，无需分词
-        ngrams = [document[i : i + n] for i in range(len(document) - n + 1)]
-
-        if not ngrams:
-            results[n] = None
-            continue
-
-        # 使用 collections.Counter 高效统计频率
-        ngram_counts = Counter(ngrams)
-
-        # 找到最常见的一个 n-gram 字符串
-        most_common_item = ngram_counts.most_common(1)[0][0]
-        results[n] = most_common_item
-
     return results
 
 
