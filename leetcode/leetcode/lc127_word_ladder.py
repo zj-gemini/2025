@@ -1,43 +1,149 @@
 from typing import List
 from collections import deque, defaultdict
+import dataclasses
+
+
+@dataclasses.dataclass
+class Node:
+    word: str
+    step: int
 
 
 class Solution:
     def ladderLength(self, beginWord: str, endWord: str, wordList: List[str]) -> int:
-        if endWord not in wordList:
+        word_set = set(wordList)
+        if endWord not in word_set or beginWord == endWord:
             return 0
 
-        L = len(beginWord)
-        # Preprocess: build all generic states mapping to words
-        # For example, "hot" -> "*ot", "h*t", "ho*"
-        all_combo_dict = defaultdict(list)
-        for word in wordList:
-            for i in range(L):
-                pattern = word[:i] + "*" + word[i + 1 :]
-                all_combo_dict[pattern].append(word)
-
-        # BFS queue: (current_word, current_level)
-        queue = deque([(beginWord, 1)])
-        visited = set([beginWord])
-        while queue:
-            word, level = queue.popleft()
-            # Try changing each letter in the current word
-            for i in range(L):
-                pattern = word[:i] + "*" + word[i + 1 :]
-                # For all words matching this pattern
-                for next_word in all_combo_dict[pattern]:
-                    if next_word == endWord:
-                        return level + 1  # Found the end word
-                    if next_word not in visited:
-                        visited.add(next_word)
-                        queue.append((next_word, level + 1))
-                # Clear the pattern list to avoid revisiting
-                all_combo_dict[pattern] = []
-        return 0  # No transformation found
+        q = deque([Node(beginWord, 1)])
+        word_set.discard(beginWord)
+        while q:
+            cur = q.pop()
+            visited = set()
+            for next in word_set:
+                n_diff = 0
+                for c1, c2 in zip(cur.word, next):
+                    if c1 != c2:
+                        n_diff += 1
+                        if n_diff > 1:
+                            break
+                if n_diff != 1:
+                    continue
+                if next == endWord:
+                    return cur.step + 1
+                q.appendleft(Node(next, cur.step + 1))
+                visited.add(next)
+            for to_remove in visited:
+                word_set.discard(to_remove)
+        return 0
 
 
 def test():
     sol = Solution()
+    print(
+        sol.ladderLength(
+            "qa",
+            "sq",
+            [
+                "si",
+                "go",
+                "se",
+                "cm",
+                "so",
+                "ph",
+                "mt",
+                "db",
+                "mb",
+                "sb",
+                "kr",
+                "ln",
+                "tm",
+                "le",
+                "av",
+                "sm",
+                "ar",
+                "ci",
+                "ca",
+                "br",
+                "ti",
+                "ba",
+                "to",
+                "ra",
+                "fa",
+                "yo",
+                "ow",
+                "sn",
+                "ya",
+                "cr",
+                "po",
+                "fe",
+                "ho",
+                "ma",
+                "re",
+                "or",
+                "rn",
+                "au",
+                "ur",
+                "rh",
+                "sr",
+                "tc",
+                "lt",
+                "lo",
+                "as",
+                "fr",
+                "nb",
+                "yb",
+                "if",
+                "pb",
+                "ge",
+                "th",
+                "pm",
+                "rb",
+                "sh",
+                "co",
+                "ga",
+                "li",
+                "ha",
+                "hz",
+                "no",
+                "bi",
+                "di",
+                "hi",
+                "qa",
+                "pi",
+                "os",
+                "uh",
+                "wm",
+                "an",
+                "me",
+                "mo",
+                "na",
+                "la",
+                "st",
+                "er",
+                "sc",
+                "ne",
+                "mn",
+                "mi",
+                "am",
+                "ex",
+                "pt",
+                "io",
+                "be",
+                "fm",
+                "ta",
+                "tb",
+                "ni",
+                "mr",
+                "pa",
+                "he",
+                "lr",
+                "sq",
+                "ye",
+            ],
+        )
+    )  # 5
+    return
     print(
         sol.ladderLength("hit", "cog", ["hot", "dot", "dog", "lot", "log", "cog"])
     )  # 5
