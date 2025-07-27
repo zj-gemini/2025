@@ -1,9 +1,10 @@
 from typing import List
+from collections import defaultdict
 
 
 class TrieNode:
     def __init__(self):
-        self.children = {}
+        self.children = defaultdict(TrieNode)
         self.word = None  # Store word at end node for fast lookup
 
 
@@ -15,6 +16,7 @@ class Solution:
             node = root
             for ch in word:
                 if ch not in node.children:
+                    # Create a new TrieNode if the character is not present
                     node.children[ch] = TrieNode()
                 node = node.children[ch]
             node.word = word
@@ -29,12 +31,12 @@ class Solution:
             nxt = node.children[ch]
             if nxt.word:
                 result.add(nxt.word)
-                nxt.word = None  # Avoid duplicate results
+                nxt.word = None  # Avoid duplicate results, not neccessary.
 
-            board[x][y] = "#"  # Mark visited
+            board[x][y] = None  # Mark visited
             for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
                 nx, ny = x + dx, y + dy
-                if 0 <= nx < m and 0 <= ny < n and board[nx][ny] != "#":
+                if 0 <= nx < m and 0 <= ny < n and board[nx][ny] is not None:
                     dfs(nx, ny, nxt)
             board[x][y] = ch  # Restore
 
