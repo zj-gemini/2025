@@ -1,45 +1,81 @@
-from typing import List, Dict, Set
+# Design a simplified version of Twitter where users can post tweets, follow/unfollow another user, and is able to see the 10 most recent tweets in the user's news feed.
+
+# Implement the Twitter class:
+
+# Twitter() Initializes your twitter object.
+# void postTweet(int userId, int tweetId) Composes a new tweet with ID tweetId by the user userId. Each call to this function will be made with a unique tweetId.
+# List<Integer> getNewsFeed(int userId) Retrieves the 10 most recent tweet IDs in the user's news feed. Each item in the news feed must be posted by users who the user followed or by the user themself. Tweets must be ordered from most recent to least recent.
+# void follow(int followerId, int followeeId) The user with ID followerId started following the user with ID followeeId.
+# void unfollow(int followerId, int followeeId) The user with ID followerId started unfollowing the user with ID followeeId.
+
+# Example 1:
+
+# Input
+# ["Twitter", "postTweet", "getNewsFeed", "follow", "postTweet", "getNewsFeed", "unfollow", "getNewsFeed"]
+# [[], [1, 5], [1], [1, 2], [2, 6], [1], [1, 2], [1]]
+# Output
+# [null, null, [5], null, null, [6, 5], null, [5]]
+
+# Explanation
+# Twitter twitter = new Twitter();
+# twitter.postTweet(1, 5); // User 1 posts a new tweet (id = 5).
+# twitter.getNewsFeed(1);  // User 1's news feed should return a list with 1 tweet id -> [5]. return [5]
+# twitter.follow(1, 2);    // User 1 follows user 2.
+# twitter.postTweet(2, 6); // User 2 posts a new tweet (id = 6).
+# twitter.getNewsFeed(1);  // User 1's news feed should return a list with 2 tweet ids -> [6, 5]. Tweet id 6 should precede tweet id 5 because it is posted after tweet id 5.
+# twitter.unfollow(1, 2);  // User 1 unfollows user 2.
+# twitter.getNewsFeed(1);  // User 1's news feed should return a list with 1 tweet id -> [5], since user 1 is no longer following user 2.
+
+
+from typing import List, Set
 import heapq
+from collections import defaultdict
+import dataclasses
+
+
+@dataclasses.dataclass(order=True)
+class Tweet:
+    timestamp: int
+    id: int
+
+
+@dataclasses.dataclass
+class User:
+    tweets: List[Tweet] = dataclasses.field(default_factory=list)
+    follows: Set[int] = dataclasses.field(default_factory=set)
 
 
 class Twitter:
     def __init__(self):
-        # userId -> set of followees
-        self.follows: Dict[int, Set[int]] = {}
-        # userId -> list of (timestamp, tweetId)
-        self.tweets: Dict[int, List[tuple]] = {}
+        self.users = defaultdict(User)
         self.time = 0  # global timestamp
 
     def postTweet(self, userId: int, tweetId: int) -> None:
-        if userId not in self.tweets:
-            self.tweets[userId] = []
-        self.tweets[userId].append((self.time, tweetId))
+        self.users[userId].tweets.append(Tweet(timestamp=self.time, id=tweetId))
         self.time += 1
 
     def getNewsFeed(self, userId: int) -> List[int]:
         # Get self and followees
-        followees = self.follows.get(userId, set()).copy()
-        followees.add(userId)
+        users_to_show = set([userId])
+        users_to_show.update(self.users[userId].follows)
         # Collect all tweets from self and followees
         tweets = []
-        for uid in followees:
-            if uid in self.tweets:
-                for t in self.tweets[uid][-10:]:  # Only need last 10 per user
+        for uid in users_to_show:
+            if uid in self.users:
+                for t in self.users[uid].tweets[-10:]:  # Only need last 10 per user
                     tweets.append(t)
         # Get 10 most recent
         tweets.sort(reverse=True)  # sort by timestamp descending
-        return [tweetId for _, tweetId in tweets[:10]]
+        return [tweet.id for tweet in tweets[:10]]
 
     def follow(self, followerId: int, followeeId: int) -> None:
         if followerId == followeeId:
             return
-        if followerId not in self.follows:
-            self.follows[followerId] = set()
-        self.follows[followerId].add(followeeId)
+        self.users[followerId].follows.add(followeeId)
 
     def unfollow(self, followerId: int, followeeId: int) -> None:
-        if followerId in self.follows:
-            self.follows[followerId].discard(followeeId)
+        if followerId in self.users:
+            self.users[followerId].follows.discard(followeeId)
 
 
 # Test for the example case
