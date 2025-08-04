@@ -1,3 +1,5 @@
+from typing import Dict
+
 RESERVED_HEAD_KEY = "HEAD"
 RESERVED_TAIL_KEY = "TAIL"
 
@@ -11,10 +13,9 @@ class Node:
 
 
 class LRUCache:
-
     def __init__(self, capacity: int):
         self.capacity = capacity
-        self.cache = {}
+        self.cache: Dict[int, Node] = {}  # Explicit typing
         self.head = Node(RESERVED_HEAD_KEY, 0)
         self.tail = Node(RESERVED_TAIL_KEY, 0)
         self.head.next = self.tail
