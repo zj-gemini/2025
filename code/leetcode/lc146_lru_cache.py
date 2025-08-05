@@ -1,6 +1,7 @@
 # LRU
 import dataclasses
 from typing import Dict
+from collections import OrderedDict
 
 
 # Define two way linked node
@@ -56,6 +57,32 @@ class LRUCache:
                 node = self.tail.pre
                 del self.cache[node.key]
                 self._remove(node)
+
+
+class LRUCacheSimple:
+
+    def __init__(self, capacity: int):
+        self.cache: OrderedDict[int, int] = OrderedDict()
+        self.capacity = capacity
+
+    def get(self, key: int) -> int:
+        if key not in self.cache:
+            return -1
+
+        # Simply move it to the end
+        val = self.cache[key]
+        del self.cache[key]
+        self.cache[key] = val
+        return val
+
+    def put(self, key: int, value: int) -> None:
+        if key in self.cache:
+            self.cache[key] = value
+            _ = self.get(key)
+            return
+        self.cache[key] = value
+        if len(self.cache) > self.capacity:
+            _ = self.cache.popitem(last=False)
 
 
 def test():
