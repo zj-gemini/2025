@@ -1,45 +1,56 @@
 from typing import List
-from collections import deque, defaultdict
+from collections import deque
 import dataclasses
 
 
 @dataclasses.dataclass
 class Node:
     word: str
-    step: int
+    step: int  # Number of steps from beginWord to this word
 
 
 class Solution:
     def ladderLength(self, beginWord: str, endWord: str, wordList: List[str]) -> int:
-        word_set = set(wordList)
+        word_set = set(wordList)  # Use a set for O(1) lookups and removals
         if endWord not in word_set or beginWord == endWord:
-            return 0
+            return 0  # No possible transformation
 
+        # BFS queue initialization
         q = deque([Node(beginWord, 1)])
-        word_set.discard(beginWord)
+        word_set.discard(beginWord)  # Remove beginWord from set to avoid revisiting
+
         while q:
-            cur = q.pop()
-            visited = set()
+            cur = q.pop()  # Get current node (word and step count)
+            visited = set()  # Track words visited in this BFS layer
+
+            # Try all possible next words in the word_set
             for next in word_set:
-                n_diff = 0
+                n_diff = 0  # Count character differences
                 for c1, c2 in zip(cur.word, next):
                     if c1 != c2:
                         n_diff += 1
                         if n_diff > 1:
-                            break
+                            break  # More than one letter difference, skip
+
                 if n_diff != 1:
-                    continue
+                    continue  # Only consider words differing by one letter
+
                 if next == endWord:
-                    return cur.step + 1
-                q.appendleft(Node(next, cur.step + 1))
-                visited.add(next)
+                    return cur.step + 1  # Found the endWord, return steps
+
+                q.appendleft(Node(next, cur.step + 1))  # Add next word to BFS queue
+                visited.add(next)  # Mark as visited for this layer
+
+            # Remove all visited words from word_set to prevent revisiting
             for to_remove in visited:
                 word_set.discard(to_remove)
-        return 0
+
+        return 0  # No transformation sequence found
 
 
 def test():
     sol = Solution()
+    # Test case 1: Large word list, expect 5
     print(
         sol.ladderLength(
             "qa",
@@ -142,13 +153,20 @@ def test():
                 "ye",
             ],
         )
-    )  # 5
+    )  # Output: 5
+
     return
+
+    # Test case 2: Standard example, expect 5
     print(
         sol.ladderLength("hit", "cog", ["hot", "dot", "dog", "lot", "log", "cog"])
-    )  # 5
-    print(sol.ladderLength("hit", "cog", ["hot", "dot", "dog", "lot", "log"]))  # 0
-    print(sol.ladderLength("a", "c", ["a", "b", "c"]))  # 2
+    )  # Output: 5
+    # Test case 3: No possible transformation, expect 0
+    print(
+        sol.ladderLength("hit", "cog", ["hot", "dot", "dog", "lot", "log"])
+    )  # Output: 0
+    # Test case 4: Short transformation, expect 2
+    print(sol.ladderLength("a", "c", ["a", "b", "c"]))  # Output: 2
 
 
 # Uncomment to run tests
