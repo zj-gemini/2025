@@ -43,3 +43,30 @@ print(cat.speak())  # Meow!
 
 # Trying to instantiate Animal directly will raise an error:
 # animal = Animal()  # TypeError: Can't instantiate abstract class Animal with
+
+
+# Examples of conventional classes with __init__
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def greet(self):
+        return f"Hello, my name is {self.name} and I am {self.age} years old."
+
+
+class Rectangle:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+
+    def area(self):
+        return self.width * self.height
+
+
+# Usage examples
+person = Person("Alice", 30)
+print(person.greet())  # Hello, my name is Alice and I am 30 years old.
+
+rect = Rectangle(5, 10)
+print(rect.area())  # 50
