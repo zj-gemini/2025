@@ -80,3 +80,10 @@ if __name__ == "__main__":
     # Tokenize test words
     for word in ["banana", "band", "bandana"]:
         print(f"{word} -> {bpe.tokenize(word)}")
+
+# Output:
+# Merges: [('a', 'n'), ('b', 'an'), ('an', 'a'), ('ana', '</eow>'), ('ban', 'ana</eow>'), ('ban', 'd'), ('band', 'ana</eow>')]
+# Vocab: {'banana</eow>', 'bandana</eow>'}
+# banana -> ['banana</eow>']
+# band -> ['band', '</eow>']
+# bandana -> ['bandana</eow>']
