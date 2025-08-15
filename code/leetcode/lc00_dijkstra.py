@@ -11,22 +11,23 @@ def cost(
     for (src, dst), (fee, threshold) in transaction_cost.items():
         adj[src].append((dst, fee, threshold))
 
-    # Dijkstra's algorithm: (total_cost, current_bank, path)
-    heap = [(0, b1, [b1])]
+    # Dijkstra's algorithm: (total_cost, path)
+    heap = [(0, [b1])]
     visited = dict()  # bank -> min_cost
 
     while heap:
-        curr_cost, curr_bank, path = heapq.heappop(heap)
-        if curr_bank in visited and visited[curr_bank] <= curr_cost:
+        cur_cost, path = heapq.heappop(heap)
+        cur_bank = path[-1]
+        if cur_bank in visited and visited[cur_bank] <= cur_cost:
             continue
-        visited[curr_bank] = curr_cost
-        if curr_bank == b2:
-            return curr_cost, path
-        for neighbor, fee, threshold in adj.get(curr_bank, []):
+        visited[cur_bank] = cur_cost
+        if cur_bank == b2:
+            return cur_cost, path
+        for dest, fee, threshold in adj.get(cur_bank, []):
             # If amount > threshold, double the fee ratio
             fee_ratio = fee * (2 if amount > threshold else 1)
-            next_cost = curr_cost + amount * fee_ratio
-            heapq.heappush(heap, (next_cost, neighbor, path + [neighbor]))
+            next_cost = cur_cost + amount * fee_ratio
+            heapq.heappush(heap, (next_cost, path + [dest]))
     return float("inf"), []  # No path found
 
 
