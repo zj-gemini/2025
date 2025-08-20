@@ -31,9 +31,19 @@ print(np.mean(g))  # 2.5
 # 6. Matrix multiplication
 h = np.array([[1, 2], [3, 4]])
 i = np.array([[5, 6], [7, 8]])
-print(np.dot(h, i))  # Matrix multiplication
-print(h @ i)  # Same as above
+print("Dot product:")
+print(np.dot(h, i))
+print("\nMatmul operator @:")
+print(h @ i)  # Same as np.matmul for 2D arrays
+print("\nnp.matmul function:")
+print(np.matmul(h, i))  # Equivalent to @
 
+# For higher dimensional arrays, matmul performs broadcasting and stacks matrix multiplications
+# Create two stacks of 2x3 and 3x2 matrices
+j = np.arange(12).reshape(2, 2, 3)
+k = np.arange(12).reshape(2, 3, 2)
+print("\nMatmul on 3D arrays (stack of matrices):")
+print(np.matmul(j, k))
 # 7. Transpose and axis operations
 print(h.T)  # Transpose
 print(np.sum(h, axis=0))  # Sum over columns
