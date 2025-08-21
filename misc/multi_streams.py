@@ -34,7 +34,7 @@ def read_streams(streams: list[Stream]) -> None:
 
     while avail_s:
         item, s_idx = heapq.heappop(avail_s)
-        print(item.id, item.val)
+        print(f"id: {item.id}, val: {item.val}")
         maybe_add_available_stream(avail_s, s_idx)
 
 
