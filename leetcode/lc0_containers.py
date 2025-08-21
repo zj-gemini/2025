@@ -1,5 +1,27 @@
 # Examples for useful common containers in Python
 
+# 1. set examples
+s = set([1, 2, 3])
+s.add(4)
+print(s)  # {1, 2, 3, 4}
+s.remove(2)
+print(s)  # {1, 3, 4}
+print(3 in s)  # True
+print(len(s))  # 3
+
+# Set operations
+s2 = {3, 4, 5}
+print(s & s2)  # {3, 4} (intersection)
+print(s | s2)  # {1, 3, 4, 5} (union)
+print(s - s2)  # {1} (difference)
+print(s ^ s2)  # {1, 5} (symmetric difference)
+
+# issuperset, issubset, isdisjoint
+s3 = {3, 4}
+print(s.issuperset(s3))  # True
+print(s3.issubset(s))  # True
+print(s.isdisjoint({7, 8}))  # True
+
 # 2. collections.Counter
 from collections import Counter
 
