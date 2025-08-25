@@ -1,0 +1,70 @@
+{
+"problems": [
+    {
+    "problem_id": 1,
+    "title": "Sum of Array",
+    "description": "Given an array of integers, return the sum of its elements.",
+    "function_args": {
+        "nums": "list[int]"
+    },
+    "test_cases": [
+        {
+        "input": {
+            "nums": [1, 2, 3, 4]
+        },
+        "expected_output": 10
+        },
+        {
+        "input": {
+            "nums": [0, -1, 1]
+        },
+        "expected_output": 0
+        }
+    ]
+    },
+    {
+    "problem_id": 2,
+    "title": "Reverse List",
+    "description": "Given a list of integers, return the reversed list.",
+    "function_args": {
+        "nums": "list[int]"
+    },
+    "test_cases": [
+        {
+        "input": {
+            "nums": [1, 2, 3]
+        },
+        "expected_output": [3, 2, 1]
+        },
+        {
+        "input": {
+            "nums": []
+        },
+        "expected_output": []
+        }
+    ]
+    },
+    {
+    "problem_id": 3,
+    "title": "Is Palindrome",
+    "description": "Given a string, return True if it is a palindrome, False otherwise.",
+    "function_args": {
+        "s": "str"
+    },
+    "test_cases": [
+        {
+        "input": {
+            "s": "racecar"
+        },
+        "expected_output": true
+        },
+        {
+        "input": {
+            "s": "hello"
+        },
+        "expected_output": false
+        }
+    ]
+    }
+]
+}

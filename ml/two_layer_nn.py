@@ -1,0 +1,90 @@
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+
+# 1. Define the Neural Network Architecture
+class TwoLayerNet(nn.Module):
+    def __init__(self, input_size, hidden_size1, hidden_size2, num_classes):
+        """
+        Initializes the layers of the neural network.
+        - input_size: The number of input features.
+        - hidden_size1: The number of neurons in the first hidden layer.
+        - hidden_size2: The number of neurons in the second hidden layer.
+        - num_classes: The number of output classes.
+        """
+        super(TwoLayerNet, self).__init__()
+        self.fc1 = nn.Linear(input_size, hidden_size1)
+        self.relu1 = nn.ReLU()
+        self.fc2 = nn.Linear(hidden_size1, hidden_size2)
+        self.relu2 = nn.ReLU()
+        self.fc3 = nn.Linear(hidden_size2, num_classes)
+
+    def forward(self, x):
+        """
+        Defines the forward pass of the neural network.
+        The final layer's output is raw logits. The softmax is applied by the loss function.
+        """
+        out = self.fc1(x)
+        out = self.relu1(out)
+        out = self.fc2(out)
+        out = self.relu2(out)
+        out = self.fc3(out)
+        # Note: We don't apply softmax here because nn.CrossEntropyLoss
+        # expects raw logits and applies log_softmax internally for better
+        # numerical stability.
+        return out
+
+
+def main():
+    # 2. Set up Hyperparameters and Data
+    input_size = 4
+    hidden_size1 = 32
+    hidden_size2 = 16
+    num_classes = 3
+    batch_size = 4
+    learning_rate = 0.01
+    num_epochs = 25
+
+    # Create some dummy data for demonstration
+    # A batch of samples, each with a defined number of features.
+    X_train = torch.randn(batch_size, input_size)
+    # Corresponding labels for each sample in the batch.
+    y_train = torch.randint(0, num_classes, (batch_size,))
+
+    print("--- Sample Data ---")
+    print("Input features (X_train shape):", X_train.shape)
+    print("Target labels (y_train shape):", y_train.shape)
+    print("-" * 20)
+
+    # 3. Instantiate the Model, Loss, and Optimizer
+    model = TwoLayerNet(input_size, hidden_size1, hidden_size2, num_classes)
+    print("\n--- Model Architecture ---")
+    print(model)
+    print("-" * 20)
+
+    # Loss function: CrossEntropyLoss is suitable for multi-class classification.
+    # It combines nn.LogSoftmax and nn.NLLLoss in one single class.
+    criterion = nn.CrossEntropyLoss()
+
+    # Optimizer: Stochastic Gradient Descent (SGD)
+    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+
+    # 4. Training Loop
+    print("\n--- Training ---")
+    for epoch in range(num_epochs):
+        # Forward pass
+        outputs = model(X_train)
+        loss = criterion(outputs, y_train)
+
+        # Backward and optimize
+        optimizer.zero_grad()  # Clear gradients from previous iteration
+        loss.backward()  # Compute gradients
+        optimizer.step()  # Update weights
+
+        if (epoch + 1) % 10 == 0:
+            print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}")
+
+
+if __name__ == "__main__":
+    main()
