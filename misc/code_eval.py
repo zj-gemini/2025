@@ -13,8 +13,10 @@ import json
 import logging
 from pathlib import Path
 from typing import Any
+from rich import print
 
 import pydantic
+
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -67,52 +69,45 @@ def evaluate_submission(problem: Problem, submission: Submission) -> Any:
     return score / len(problem.test_cases)
 
 
-def xbox(code: str, input: Any, function_args_descrption: dict) -> str:
+def xbox(code: str, input: Any, function_args: dict) -> Any:
     """Execute code with input specified in the argument, return the executed output"""
-
-    # Get the single key from the dictionary
-    if not function_args_descrption:
+    if not function_args:
         return None
-    arg_name = list(function_args_descrption.keys())[0]
 
-    # Create a dictionary to hold the local variables for the exec call
-    local_vars = {arg_name: input}
-
-    # Execute the code
+    local_vars = {}
     try:
         exec(code, {}, local_vars)
-    except SyntaxError as e:
-        print(f"Syntax error in code: {e}")
+    except Exception as e:
+        logger.error(f"Syntax or runtime error in user code: {e}", exc_info=True)
         return None
 
-    func = None
-    for element in local_vars:
-        if element != arg_name:
-            func = local_vars[element]
-    return str(func(input))
+    func = local_vars.get("solution")
+    if not func:
+        logger.error("No function 'solution' defined in submission.")
+        return None
 
-    # # Assuming the executed code will store the result in a variable named 'output'
-    # return local_vars.get("output", None)
+    try:
+        if isinstance(input, dict):
+            return func(**input)
+        else:
+            return func(input)
+    except Exception as e:
+        logger.error(f"Error during function execution: {e}", exc_info=True)
+        return None
 
 
 def main() -> None:
     problems = {p.problem_id: p for p in load_problems()}
-    for p in problems:
-        print("*" * 40)
-        print(problems[p].model_dump())
 
     submissions = load_submissions()
-    for s in submissions:
-        print("*" * 40)
-        print(s.model_dump())
 
     for submission in submissions:
         problem = problems[submission.problem_id]
-        logger.info(f"Evaluating (Problem {submission.problem_id})")
-        result = evaluate_submission(problem, submission)
         print("*" * 20)
-        print("problem:", problem)
-        print("result:", result)
+        logger.info(f"Evaluating (Problem {submission.problem_id})")
+        print(problem.model_dump())
+        print(submission.model_dump())
+        result = evaluate_submission(problem, submission)
         logger.info(f"Problem {submission.problem_id} ({problem.title}):")
         logger.info(f"Result: {result}")
 
