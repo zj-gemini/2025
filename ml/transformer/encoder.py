@@ -1,29 +1,6 @@
 import numpy as np
 
-
-def relu(x):
-    """
-    Computes the Rectified Linear Unit activation function.
-    """
-    return np.maximum(0, x)
-
-
-def layer_norm(x, eps=1e-5):
-    """
-    Applies Layer Normalization to the input tensor.
-    """
-    mean = x.mean(axis=-1, keepdims=True)
-    std = x.std(axis=-1, keepdims=True)
-    return (x - mean) / (std + eps)
-
-
-def softmax(x, axis=-1):
-    """
-    Computes softmax along a specified axis, with a numerically stable trick.
-    """
-    # Subtract max for numerical stability before exponentiating
-    e_x = np.exp(x - np.max(x, axis=axis, keepdims=True))
-    return e_x / np.sum(e_x, axis=axis, keepdims=True)
+from utils import relu, layer_norm, softmax
 
 
 class TransformerEncoderBlock:
