@@ -211,7 +211,7 @@ def main():
     final_output = encoder_block.forward(input_embeddings)
 
     print(f"\nFinal output of the transformer block shape: {final_output.shape}")
-    print(f"Final output:\n{final_output}")
+    print(f"Final output:\n{final_output.round(3)}")
 
 
 if __name__ == "__main__":
