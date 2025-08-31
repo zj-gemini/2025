@@ -39,6 +39,84 @@ def get_positional_encoding(seq_len, d_model):
     return pe
 
 
+class TransformerEncoderBlock:
+    """
+    A single block of a Transformer encoder, implemented from scratch with NumPy.
+    This class encapsulates multi-head attention and a feed-forward network.
+    """
+
+    def __init__(self, d_model, num_heads, d_ff, d_k, d_v):
+        """
+        Initializes the weights for the encoder block.
+        """
+        self.d_model = d_model
+        self.num_heads = num_heads
+        self.d_ff = d_ff
+        self.d_k = d_k
+        self.d_v = d_v
+        self.d_q = d_k  # Query and Key dimensions must be equal
+
+        # --- Initialize weights for Multi-Head Attention ---
+        # W_queries is a list of `num_heads` matrices. Each matrix has shape (d_q, d_model).
+        self.W_queries = [
+            np.random.rand(self.d_q, self.d_model) for _ in range(self.num_heads)
+        ]
+        # W_keys is a list of `num_heads` matrices. Each matrix has shape (d_k, d_model).
+        self.W_keys = [
+            np.random.rand(self.d_k, self.d_model) for _ in range(self.num_heads)
+        ]
+        # W_values is a list of `num_heads` matrices. Each matrix has shape (d_v, d_model).
+        self.W_values = [
+            np.random.rand(self.d_v, self.d_model) for _ in range(self.num_heads)
+        ]
+        # Final projection matrix for attention output
+        self.W_O = np.random.rand(self.d_model, self.num_heads * self.d_v)
+
+        # --- Initialize weights for Feed-Forward Network ---
+        self.W_ff1 = np.random.rand(self.d_ff, self.d_model)
+        self.W_ff2 = np.random.rand(self.d_model, self.d_ff)
+
+    def forward(self, x):
+        """
+        Performs the forward pass for the encoder block.
+        x: Input tensor of shape (seq_len, d_model)
+        """
+        # 1. Multi-Head Attention
+        all_context_vectors = []
+        for i in range(self.num_heads):
+            W_query, W_key, W_value = (
+                self.W_queries[i],
+                self.W_keys[i],
+                self.W_values[i],
+            )
+            # The operation x @ W.T is equivalent to (W @ x.T).T but is more direct.
+            queries = x @ W_query.T
+            keys = x @ W_key.T
+            values = x @ W_value.T
+
+            omega = queries @ keys.T
+            attention_weights = softmax(omega / np.sqrt(self.d_k), axis=1)
+            context_vectors_h = attention_weights @ values
+            all_context_vectors.append(context_vectors_h)
+
+        # 2. Concatenate and Project
+        concatenated_context = np.concatenate(all_context_vectors, axis=-1)
+        projected_context = concatenated_context @ self.W_O.T
+
+        # 3. Add & Norm (Post-Attention)
+        residual_1 = x + projected_context
+        norm_1 = layer_norm(residual_1)
+
+        # 4. Feed-Forward Network
+        ffn_output = relu(norm_1 @ self.W_ff1.T) @ self.W_ff2.T
+
+        # 5. Add & Norm (Post-FFN)
+        residual_2 = norm_1 + ffn_output
+        norm_2 = layer_norm(residual_2)
+
+        return norm_2
+
+
 def main():
     """
     Demonstrates the core components of a transformer's self-attention
@@ -62,7 +140,7 @@ def main():
 
     # --- 2. Integer Encoding ---
     # Convert tokens to their integer representations using the vocabulary.
-    # Shape: (seq_len,) -> (6,)
+    # Shape: (seq_len,)
     sentence_int = np.array([word_to_idx[token] for token in tokens])
     print(f"\nInteger-encoded sentence: {sentence_int}")
 
@@ -72,16 +150,16 @@ def main():
     np.random.seed(123)
     vocab_size = len(vocab)
     # d_model is the dimension of the embedding vectors.
-    embedding_dim = 2  # d_model
+    d_model = 8
 
     # Create the embedding matrix with random weights.
-    # Shape: (vocab_size, d_model) -> (6, 2)
-    embedding_matrix = np.random.rand(vocab_size, embedding_dim)
+    # Shape: (vocab_size, d_model)
+    embedding_matrix = np.random.rand(vocab_size, d_model)
     print(f"\nEmbedding matrix (weights) shape: {embedding_matrix.shape}")
 
     # Get the embeddings for our sentence by indexing into the matrix.
     # This is our input matrix X.
-    # Shape: (seq_len, d_model) -> (6, 2)
+    # Shape: (seq_len, d_model)
     embedded_sentence = embedding_matrix[sentence_int]
     print(f"Word embeddings shape: {embedded_sentence.shape}")
 
@@ -89,106 +167,51 @@ def main():
     # The self-attention mechanism doesn't inherently know the order of tokens.
     # We add positional encodings to the word embeddings to give the model
     # information about the position of each token in the sequence.
-    d_model = embedded_sentence.shape[1]
+    # pos_encoding shape: (seq_len, d_model)
     pos_encoding = get_positional_encoding(seq_len, d_model)
     print(f"\nPositional encoding shape: {pos_encoding.shape}")
 
     # Add positional encodings to the word embeddings.
     # This is the final input to the transformer block.
-    # Shape: (seq_len, d_model) -> (6, 2)
+    # Shape: (seq_len, d_model)
     input_embeddings = embedded_sentence + pos_encoding
     print(
         f"Input embeddings (with positional encoding) shape: {input_embeddings.shape}"
     )
 
-    # --- 4. Defining Q, K, V Weight Matrices ---
-    # d_model represents the size of each word vector (embedding dimension)
+    # --- 4. Define Model Hyperparameters ---
+    d_ff = 16
+    num_heads = 2
 
-    # Define the dimensions for query, key, and value vectors.
-    # In a real transformer, d_q = d_k = d_v = d_model / num_heads.
-    # For simplicity, we define them directly. The dot-product attention
-    # requires d_q and d_k to be equal.
-    d_q, d_k, d_v = 4, 4, 8
+    # The model's dimension must be divisible by the number of heads.
+    assert d_model % num_heads == 0, "d_model must be divisible by num_heads"
 
-    # Initialize weight matrices with random values. These matrices project the
-    # input embeddings into the Q, K, and V spaces.
-    # W_query shape: (d_q, d_model) -> (4, 2)
-    W_query = np.random.rand(d_q, d_model)
-    # W_key shape: (d_k, d_model) -> (4, 2)
-    W_key = np.random.rand(d_k, d_model)
-    # W_value shape: (d_v, d_model) -> (8, 2)
-    W_value = np.random.rand(d_v, d_model)
+    # In the standard transformer architecture, the dimension of the value vector
+    # is set to d_model / num_heads. This ensures the total computation remains
+    # consistent when splitting the model into multiple heads.
+    d_v = d_model // num_heads
 
-    # --- 5. Calculating Q, K, V vectors for the whole sentence ---
-    # The operation is W @ x.T, then transpose the result. This is equivalent to X @ W.T
-    # queries shape: (seq_len, d_q) -> (6, 4)
-    queries = (W_query @ input_embeddings.T).T
-    # keys shape: (seq_len, d_k) -> (6, 4)
-    keys = (W_key @ input_embeddings.T).T
-    # values shape: (seq_len, d_v) -> (6, 8)
-    values = (W_value @ input_embeddings.T).T
+    # The dimension of query and key can be set independently, but d_q must equal d_k.
+    d_k = 4
 
-    print(f"\nqueries.shape: {queries.shape}")
-    print(f"keys.shape: {keys.shape}")
-    print(f"values.shape: {values.shape}")
+    # --- 5. Instantiate and Run the Transformer Block ---
+    print("\n--- Initializing Transformer Encoder Block ---")
+    print(
+        f"Hyperparameters: d_model={d_model}, num_heads={num_heads}, d_k={d_k}, d_v={d_v}"
+    )
+    encoder_block = TransformerEncoderBlock(
+        d_model=d_model,
+        num_heads=num_heads,
+        d_ff=d_ff,
+        d_k=d_k,
+        d_v=d_v,
+    )
 
-    # --- 6. Calculating Full Attention Scores ---
-    # omega(i,j) = q(i) . k(j)
-    # We compute the dot product of all query vectors with all key vectors.
-    # queries shape: (seq_len, d_q) -> (6, 4)
-    # keys.T shape: (d_k, seq_len) -> (4, 6)
-    # omega shape: (seq_len, seq_len) -> (6, 6)
-    omega = queries @ keys.T
-    print(f"\nAttention scores (omega) matrix shape: {omega.shape}")
+    print("\n--- Running Forward Pass ---")
+    final_output = encoder_block.forward(input_embeddings)
 
-    # --- 7. Applying Softmax for Full Attention Weights Matrix ---
-    # Apply scaled dot-product attention: softmax( (Q @ K.T) / sqrt(d_k) )
-    # attention_weights shape: (seq_len, seq_len) -> (6, 6)
-    attention_weights = softmax(omega / np.sqrt(d_k), axis=1)
-    print(f"Attention weights matrix shape: {attention_weights.shape}")
-
-    # --- 8. Computing the Context Vectors for all tokens ---
-    # The context vector is the weighted sum of the value vectors.
-    # attention_weights shape: (seq_len, seq_len) -> (6, 6)
-    # values shape: (seq_len, d_v) -> (6, 8)
-    # context_vectors shape: (seq_len, d_v) -> (6, 8)
-    context_vectors = attention_weights @ values
-    print(f"Context vectors shape: {context_vectors.shape}")
-
-    # --- 9. Add & Norm (Post-Attention) ---
-    # In a real transformer, the output of multi-head attention is projected back
-    # to d_model. We'll simulate this with a projection matrix W_O.
-    # W_O shape: (d_model, d_v) -> (2, 8)
-    W_O = np.random.rand(d_model, d_v)
-    # projected_context shape: (seq_len, d_model) -> (6, 2)
-    projected_context = context_vectors @ W_O.T
-
-    # Add the residual (skip) connection
-    residual_1 = input_embeddings + projected_context
-    # Apply Layer Normalization
-    norm_1 = layer_norm(residual_1)
-    print(f"\nOutput of first Add & Norm layer shape: {norm_1.shape}")
-
-    # --- 10. Feed-Forward Network (FFN) ---
-    # FFN consists of two linear layers with a ReLU activation in between.
-    d_ff = 16  # Dimension of the inner FFN layer
-    # W_ff1 shape: (d_ff, d_model) -> (16, 2)
-    W_ff1 = np.random.rand(d_ff, d_model)
-    # W_ff2 shape: (d_model, d_ff) -> (2, 16)
-    W_ff2 = np.random.rand(d_model, d_ff)
-
-    # ffn_output shape: (seq_len, d_model) -> (6, 2)
-    ffn_output = relu(norm_1 @ W_ff1.T) @ W_ff2.T
-    print(f"Output of FFN shape: {ffn_output.shape}")
-
-    # --- 11. Add & Norm (Post-FFN) ---
-    # Add the second residual connection
-    residual_2 = norm_1 + ffn_output
-    # Apply Layer Normalization
-    norm_2 = layer_norm(residual_2)
-    print(f"Output of second Add & Norm layer shape: {norm_2.shape}")
-
-    print(f"\nFinal output of the transformer block:\n{norm_2}")
+    print(f"\nFinal output of the transformer block shape: {final_output.shape}")
+    print(f"Final output:\n{final_output}")
 
 
 if __name__ == "__main__":
