@@ -92,6 +92,13 @@ class TransformerDecoderBlock:
 
             # Calculate attention scores
             # Shape: (query_seq_len, key_seq_len)
+            # Note on efficiency: For causal self-attention, the mask will make the
+            # upper triangle of this matrix irrelevant. While it seems inefficient
+            # to compute these values only to discard them, NumPy's vectorized
+            # matrix multiplication is far faster than a Python loop that would
+            # selectively compute only the lower triangle. Production-grade libraries
+            # like PyTorch use optimized kernels (e.g., FlashAttention) to perform
+            # this masking efficiently without computing the full matrix.
             omega = queries @ keys.T
             if mask is not None:
                 # The mask shape should be compatible with omega's shape
