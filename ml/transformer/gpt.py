@@ -26,14 +26,14 @@ def create_causal_mask(seq_len):
     return mask
 
 
-class MiniBERT:
+class DecoderOnlyTransformer:
     """
-    A simplified BERT-like model composed of multiple Transformer Encoder Blocks.
+    A simplified GPT-like, decoder-only transformer composed of multiple blocks.
     """
 
     def __init__(self, num_layers, d_model, num_heads, d_ff, d_k, d_v):
         """
-        Initializes the BERT model with a stack of encoder blocks.
+        Initializes the model with a stack of transformer blocks.
         """
         self.num_layers = num_layers
         self.encoder_blocks = [
@@ -44,7 +44,7 @@ class MiniBERT:
     def forward(self, x, mask=None):
         """
         Performs the forward pass for the entire BERT model.
-        x: Input tensor of shape (seq_len, d_model)
+        x: Input tensor of shape (context_length, d_model)
         mask: Optional mask to apply to attention scores.
         """
         # Pass the input through each encoder block in sequence
@@ -53,19 +53,22 @@ class MiniBERT:
         return x
 
 
-class BERTForCausalLM:
+class GPTForCausalLM:
     """
-    Wraps MiniBERT with a language model head for auto-regressive generation.
+    Wraps the DecoderOnlyTransformer with a language model head for
+    auto-regressive generation (Causal Language Modeling).
     """
 
     def __init__(
         self, vocab_size, context_length, num_layers, d_model, num_heads, d_ff, d_k, d_v
     ):
         """
-        Initializes the BERT model and the language model head.
+        Initializes the GPT model and the language model head.
         """
         np.random.seed(123)
-        self.bert = MiniBERT(num_layers, d_model, num_heads, d_ff, d_k, d_v)
+        self.transformer = DecoderOnlyTransformer(
+            num_layers, d_model, num_heads, d_ff, d_k, d_v
+        )
         self.d_model = d_model
         self.context_length = context_length
 
@@ -127,12 +130,12 @@ class BERTForCausalLM:
 
             # 4. Pass the fixed-length input through the BERT encoder
             # Shape: (context_length, d_model)
-            bert_output = self.bert.forward(model_input, mask=causal_mask)
+            transformer_output = self.transformer.forward(model_input, mask=causal_mask)
 
             # 5. Use the output of the *last actual token* (before padding) for prediction
             # The index is current_seq_len - 1
             # Shape: (d_model,)
-            last_token_output = bert_output[current_seq_len - 1, :]
+            last_token_output = transformer_output[current_seq_len - 1, :]
 
             # 6. Project to vocabulary space to get logits
             # Shape: (vocab_size,)
@@ -195,11 +198,11 @@ def main():
     d_k = 4
 
     # --- 3. Instantiate and Run the Generative BERT Model ---
-    print("\n--- Initializing Generative BERT Model ---")
+    print("\n--- Initializing Generative GPT-style Model ---")
     print(
         f"Hyperparameters: vocab_size={vocab_size}, context_length={context_length}, num_layers={num_layers}, d_model={d_model}, num_heads={num_heads}, d_k={d_k}, d_v={d_v}"
     )
-    generative_bert = BERTForCausalLM(
+    generative_model = GPTForCausalLM(
         vocab_size=vocab_size,
         context_length=context_length,
         num_layers=num_layers,
@@ -216,7 +219,7 @@ def main():
     pad_token_id = word_to_idx["[PAD]"]
     stop_token_id = word_to_idx["[STOP]"]
 
-    generated_sequence_ids = generative_bert.generate(
+    generated_sequence_ids = generative_model.generate(
         input_ids,
         pad_token_id,
         idx_to_word,
