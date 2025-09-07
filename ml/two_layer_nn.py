@@ -38,21 +38,23 @@ class TwoLayerNet(nn.Module):
 
 def main():
     # 2. Set up Hyperparameters and Data
-    input_size = 4
+    input_size = 8  # n-dimensional binary vector
     hidden_size1 = 32
     hidden_size2 = 16
-    num_classes = 3
-    batch_size = 4
-    learning_rate = 0.01
-    num_epochs = 25
+    num_classes = 2  # Binary output: 0 or 1
+    batch_size = 128
+    learning_rate = 0.02
+    num_epochs = 100
 
-    # Create some dummy data for demonstration
-    # A batch of samples, each with a defined number of features.
-    X_train = torch.randn(batch_size, input_size)
-    # Corresponding labels for each sample in the batch.
-    y_train = torch.randint(0, num_classes, (batch_size,))
+    # Generate training data for the high-dimensional XOR/Parity problem
+    # Input: n-dimensional binary vector (0s and 1s)
+    # Output: 1 if the sum of inputs is odd, 0 otherwise.
+    X_train = torch.randint(0, 2, (batch_size, input_size)).float()
+    y_train = (torch.sum(X_train, dim=1) % 2).long()
 
     print("--- Sample Data ---")
+    print("Sample Input (X_train[0]):", X_train[0].numpy())
+    print("Sample Label (y_train[0]):", y_train[0].item())
     print("Input features (X_train shape):", X_train.shape)
     print("Target labels (y_train shape):", y_train.shape)
     print("-" * 20)
@@ -67,8 +69,8 @@ def main():
     # It combines nn.LogSoftmax and nn.NLLLoss in one single class.
     criterion = nn.CrossEntropyLoss()
 
-    # Optimizer: Stochastic Gradient Descent (SGD)
-    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+    # Optimizer: Adam is often a good default choice for faster convergence.
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     # 4. Training Loop
     print("\n--- Training ---")
@@ -82,8 +84,27 @@ def main():
         loss.backward()  # Compute gradients
         optimizer.step()  # Update weights
 
-        if (epoch + 1) % 10 == 0:
+        if (epoch + 1) % 100 == 0:
             print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}")
+
+    # 5. Simple Evaluation after training
+    print("\n--- Evaluation ---")
+    model.eval()  # Set the model to evaluation mode
+    with torch.no_grad():  # Disable gradient calculation for inference
+        # Test with a new data point
+        test_x = torch.tensor(
+            [[1.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0]]
+        )  # Sum = 5 (odd)
+        true_y = 1
+        outputs = model(test_x)
+        print(f"Raw outputs (logits): {outputs.data.numpy().flatten()}")
+        # Get the prediction from the max value of the output logits
+        _, predicted_y = torch.max(outputs.data, 1)
+
+        print(f"Input: {test_x.numpy().flatten()}")
+        print(f"True y: {true_y}")
+        print(f"Predicted y: {predicted_y.item()}")
+        print(f"Correct: {true_y == predicted_y.item()}")
 
 
 if __name__ == "__main__":
