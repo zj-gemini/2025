@@ -1,31 +1,19 @@
 import asyncio
 from typing import Any, List, Dict
-from code_prompt_builder import *
-import sys
-
-sys.path.append("../utils")
-from gemini_api import get_response  # type: ignore
-from code_response_parser import *
-from code_client import CodeClient
 import json
 import subprocess
 import fire
+import sys
+
+sys.path.append("../utils")
+
+from gemini_api import get_response  # type: ignore
+from prompt_builder import *
+from response_parser import *
 
 
-async def run_agent(folder_path: str, server_script: str = "code_server.py"):
+async def run_agent(folder_path = "/Users/zjy/Downloads/Kai/2025/leetcode": str):
     """Runs the code agent CLI."""
-    client = CodeClient(server_script)
-    await client.connect_to_server()
-
-    tools = await client.list_tools()
-    print("\n=== Tools ===")
-    for tool_name, tool_info in tools.items():
-        print(f"\n[{tool_name}] {tool_info.description}")
-        print(json.dumps(tool_info.inputSchema, indent=2))
-
-    logs = await client.clear_logs()
-    print("\n=== Log Clear ===\n" + logs)
-
     print("*" * 40)
     print("Starting chat loop. Type 'exit' or 'quit' to end.")
     print("*" * 40)
@@ -94,19 +82,6 @@ def update_file(file_path: str, plan: str) -> str:
         return diff
     except FileNotFoundError:
         print(f"Error: File not found at '{file_path}'")
-    # if parsed_response.tool_calls:
-    #     print("Tool Calls:", json.dumps(parsed_response.tool_calls, indent=2))
-    #     for tool_call in parsed_response.tool_calls:
-    #         tool_name = tool_call["tool"]
-    #         tool_args = tool_call["arguments"]
-    #         result = await client.call_tool(tool_name, tool_args)
-    #         print("*" * 40)
-    #         print(f"Result for {tool_name}({tool_args}):")
-    #         print("-" * 20)
-    #         print(result)
-    #         print("*" * 40)
-    # elif parsed_response.final_response:
-    #     print("Final Response:", parsed_response.final_response)
 
 
 if __name__ == "__main__":
