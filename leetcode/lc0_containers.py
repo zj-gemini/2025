@@ -62,6 +62,7 @@ heap = [3, 1, 4]
 heapq.heapify(heap)
 heapq.heappush(heap, 2)
 print(heapq.heappop(heap))  # 1
+print(heapq.nsmallest(1, heap)[0])  # 2
 
 # 7. sortedcontainers (third-party: pip install sortedcontainers)
 from sortedcontainers import SortedList, SortedDict, SortedSet
