@@ -92,15 +92,23 @@ class TransformerDecoderBlock:
 
             # Calculate attention scores
             # Shape: (query_seq_len, key_seq_len)
-            # Note on efficiency: For causal self-attention, the mask will make the
-            # upper triangle of this matrix irrelevant. While it seems inefficient
-            # to compute these values only to discard them, NumPy's vectorized
-            # matrix multiplication is far faster than a Python loop that would
-            # selectively compute only the lower triangle. Production-grade libraries
-            # like PyTorch use optimized kernels (e.g., FlashAttention) to perform
-            # this masking efficiently without computing the full matrix.
+            # NOTE ON EFFICIENCY: This matrix multiplication is the core reason for the
+            # Transformer's quadratic complexity with respect to sequence length.
+            # The resulting `omega` matrix has a shape of (query_seq_len, key_seq_len),
+            # which becomes (target_seq_len, target_seq_len) in self-attention.
+            # This means memory and computation scale quadratically (O(n^2)), making
+            # it very expensive to process long sequences. Production-grade libraries
+            # use optimized kernels (e.g., FlashAttention) to mitigate this, but the
+            # fundamental limitation remains.
             omega = queries @ keys.T
             if mask is not None:
+                # Note on efficiency: For causal self-attention, the mask will make the
+                # upper triangle of this matrix irrelevant. While it seems inefficient
+                # to compute these values only to discard them, NumPy's vectorized
+                # matrix multiplication is far faster than a Python loop that would
+                # selectively compute only the lower triangle. Production-grade libraries
+                # like PyTorch use optimized kernels (e.g., FlashAttention) to perform
+                # this masking efficiently without computing the full matrix.
                 # The mask shape should be compatible with omega's shape
                 omega += mask
 

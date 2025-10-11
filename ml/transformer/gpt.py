@@ -109,6 +109,7 @@ class GPTForCausalLM:
                 print("Max sequence length reached. Halting generation.")
                 break
 
+            # Shape: (current_seq_len,) list of strings
             current_words = [idx_to_word[id] for id in generated_ids]
             print(f"Current generated sequence: {' '.join(current_words)}")
 
@@ -116,6 +117,7 @@ class GPTForCausalLM:
             # Shape: (context_length,)
             context_ids = np.full((self.context_length,), pad_token_id, dtype=int)
             context_ids[:current_seq_len] = generated_ids
+            # Shape: (context_length,) list of strings
             context_words = [idx_to_word[id] for id in context_ids]
             print(
                 f"Model input (padded to {self.context_length}): {' '.join(context_words)}"
@@ -123,14 +125,20 @@ class GPTForCausalLM:
 
             # 2. Get embeddings for the padded input
             current_embeddings = self.embedding_matrix[context_ids]
+            # Shape: (context_length, d_model)
 
             # 3. Add the pre-calculated fixed-size positional encoding
             # Shape: (context_length, d_model)
+            print(f"Positional encoding for first token: {pos_encoding[0, :].round(2)}")
             model_input = current_embeddings + pos_encoding
+            print(
+                f"Model input for first token (embedding + pos): {model_input[0, :].round(2)}"
+            )
 
             # 4. Pass the fixed-length input through the BERT encoder
             # Shape: (context_length, d_model)
             transformer_output = self.transformer.forward(model_input, mask=causal_mask)
+            print(f"Transformer output shape: {transformer_output.shape}")
 
             # 5. Use the output of the *last actual token* (before padding) for prediction
             # The index is current_seq_len - 1
@@ -142,9 +150,16 @@ class GPTForCausalLM:
             logits = last_token_output @ self.lm_head_weights.T
             print(f"Logits for next token (shape {logits.shape}): {logits.round(2)}")
 
+            # Apply softmax to get probabilities
+            probabilities = np.exp(logits) / np.sum(np.exp(logits))
+            print(
+                f"Probabilities (top 5): {np.sort(probabilities)[-5:][::-1].round(3)}"
+            )
+
             # 7. Get the most likely next token (greedy decoding)
             # Shape: scalar
             next_token_id = np.argmax(logits)
+            # Shape: string
             next_word = idx_to_word[next_token_id]
             print(f"Predicted next token: '{next_word}' (ID: {next_token_id})")
             generated_ids.append(next_token_id)
