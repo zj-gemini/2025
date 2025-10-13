@@ -1,0 +1,51 @@
+Rank,Scientist,Field of Study,Era/Century,Key Contribution(s)
+1,Sir Isaac Newton,"Physics, Mathematics",17th – 18th Century,"Laws of Motion, Universal Gravitation, Calculus, Theory of Light and Color."
+2,Albert Einstein,Theoretical Physics,20th Century,"Theory of Relativity (E=mc2), Photoelectric Effect, Brownian Motion."
+3,Galileo Galilei,"Astronomy, Physics",16th – 17th Century,"Improved the telescope, heliocentrism support, law of inertia, founder of modern physics."
+4,Marie Curie,"Physics, Chemistry",19th – 20th Century,"Pioneering research on radioactivity, discovery of Polonium and Radium."
+5,Charles Darwin,"Natural History, Biology",19th Century,Theory of Evolution by Natural Selection.
+6,Nikola Tesla,"Electrical Engineering, Physics",19th – 20th Century,"Alternating Current (AC) electrical system, Tesla coil, remote control."
+7,Louis Pasteur,"Chemistry, Microbiology",19th Century,"Germ Theory of Disease, development of pasteurization, first vaccines for rabies and anthrax."
+8,Archimedes,"Mathematics, Physics",3rd Century BC,"Archimedes' Principle (buoyancy), founder of hydrostatics, calculation of π, compound pulleys."
+9,James Clerk Maxwell,Theoretical Physics,19th Century,"Classical theory of electromagnetic radiation (Maxwell's equations), which unified electricity, magnetism, and light."
+10,Nicolaus Copernicus,"Astronomy, Mathematics",15th – 16th Century,Formulated the heliocentric model of the solar system.
+11,Max Planck,Theoretical Physics,19th – 20th Century,"Founder of Quantum Theory, Planck constant."
+12,Niels Bohr,Physics,20th Century,"Bohr model of the atom, foundation of quantum mechanics (Copenhagen interpretation)."
+13,Werner Heisenberg,Physics,20th Century,"Uncertainty Principle, key contributor to quantum mechanics."
+14,Johannes Kepler,"Astronomy, Mathematics",16th – 17th Century,Laws of Planetary Motion (elliptical orbits).
+15,Michael Faraday,"Physics, Chemistry",19th Century,"Discovered electromagnetic induction, diamagnetism, and electrolysis."
+16,Dmitry Mendeleev,Chemistry,19th Century,"Created the Periodic Table of Elements, predicted properties of undiscovered elements."
+17,Ernest Rutherford,"Physics, Chemistry",19th – 20th Century,"Discovered the atomic nucleus, 'Father of Nuclear Physics'."
+18,Aristotle,Natural Philosophy,4th Century BC,"Developed formal logic, vast classification of plants and animals, empirical observation."
+19,Antoine Lavoisier,Chemistry,18th Century,"Identified Oxygen and Hydrogen, Law of Conservation of Mass, 'Father of Modern Chemistry'."
+20,Benjamin Franklin,"Physics, Invention",18th Century,"Identified positive and negative electric charges, invented the lightning rod and bifocals."
+21,Gregor Mendel,"Biology, Genetics",19th Century,"Fundamental Laws of Inheritance, 'Father of Modern Genetics'."
+22,Linus Pauling,"Chemistry, Biochemistry",20th Century,"Nature of the chemical bond, structure of proteins, and pioneering molecular biology research."
+23,Erwin Schrödinger,Theoretical Physics,20th Century,Schrödinger equation (describes the wave function of a quantum-mechanical system).
+24,Edwin Hubble,Astronomy,20th Century,"Discovered galaxies beyond the Milky Way, demonstrated the expansion of the universe (Hubble's Law)."
+25,Alan Turing,"Mathematics, Computer Science",20th Century,"Conceptualized the modern computer ('Turing Machine'), 'Father of Artificial Intelligence'."
+26,Francis Crick,Molecular Biology,20th Century,Co-discoverer of the double helix structure of DNA (with Watson and based on Franklin's work).
+27,James Watson,Molecular Biology,20th Century,Co-discoverer of the double helix structure of DNA (with Crick).
+28,Rosalind Franklin,"Chemistry, Molecular Biology",20th Century,Provided the crucial X-ray diffraction images (Photo 51) leading to the discovery of DNA's structure.
+29,Alexander Fleming,"Medicine, Microbiology",20th Century,Discovered the enzyme lysozyme and the antibiotic substance penicillin.
+30,Hippocrates,Medicine,5th – 4th Century BC,"Father of Western Medicine,' established medicine as a profession, Hippocratic Oath."
+31,Euclid,Mathematics,3rd Century BC,"Father of Geometry,' authored Elements, the foundational text for geometry."
+32,William Harvey,"Medicine, Physiology",17th Century,First person to correctly describe in detail the circulation of blood in the body.
+33,Antonie van Leeuwenhoek,Microbiology,17th Century,"Father of Microbiology,' first to observe single-celled organisms (microbes)."
+34,John Dalton,"Chemistry, Physics",18th – 19th Century,"Pioneered the modern atomic theory, work on color blindness (Daltonism)."
+35,Alessandro Volta,Physics,18th – 19th Century,Invented the electric battery (Voltaic Pile).
+36,Carl Friedrich Gauss,"Mathematics, Physics",18th – 19th Century,"Contributed to number theory, statistics, and electromagnetism."
+37,Avicenna (Ibn Sina),"Medicine, Philosophy",10th – 11th Century,"Authored The Canon of Medicine, a key medical text for centuries."
+38,Christiaan Huygens,"Physics, Astronomy",17th Century,"Proposed the wave theory of light, invented the pendulum clock, discovered Saturn's moon Titan."
+39,J.J. Thomson,Physics,19th – 20th Century,Discovered the electron using the cathode ray tube experiment.
+40,Paul Dirac,Theoretical Physics,20th Century,"Predicted the existence of antimatter (the positron), unified quantum mechanics and special relativity."
+41,Enrico Fermi,Physics,20th Century,"Created the world's first nuclear reactor, 'Architect of the Nuclear Age'."
+42,Rita Levi-Montalcini,Neurobiology,20th – 21st Century,Co-discovered Nerve Growth Factor (NGF).
+43,Stephen Hawking,"Cosmology, Physics",20th – 21st Century,"Theories on black holes, including the emission of Hawking radiation, and cosmology."
+44,Alfred Wegener,"Geophysics, Meteorology",20th Century,Proposed the theory of Continental Drift.
+45,George Washington Carver,"Agriculture, Botany",19th – 20th Century,Pioneered crop rotation and developed hundreds of uses for crops like peanuts and sweet potatoes.
+46,Wilhelm Röntgen,Physics,19th Century,Discovered X-rays (Röntgen rays).
+47,Edward Jenner,Medicine,18th Century,Pioneered the world's first vaccine (for smallpox).
+48,Rachel Carson,"Marine Biology, Ecology",20th Century,"Authored Silent Spring, highlighting the dangers of pesticides and launching the modern environmental movement."
+49,Andrey Kolmogorov,Mathematics,20th Century,"Fundamental contributions to probability theory, topology, and turbulence."
+50,Tim Berners-Lee,Computer Science,20th – 21st Century,Inventor of the World Wide Web (WWW).

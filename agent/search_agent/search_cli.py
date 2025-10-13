@@ -32,6 +32,7 @@ async def call_search_agent(client, user_query: str):
 
     print("*" * 40)
     prompt = build_llm_prompt(user_query, tools)
+    print("\n=== LLM Prompt ===\n" + prompt)
     response = get_response(prompt)
     print("\n=== LLM Response ===\n" + response)
 

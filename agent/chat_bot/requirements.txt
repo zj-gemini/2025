@@ -1,0 +1,8 @@
+fastapi
+google-api-python-client
+pydantic
+python-dotenv
+uvicorn[standard]
+wikipedia
+httpx
+google-generativeai
